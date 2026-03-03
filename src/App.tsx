@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   ClipboardList,
   User,
@@ -62,7 +62,25 @@ const sections = [
 ];
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState("registration");
+  const [activeTab, setActiveTab] = useState(() => {
+    const hash = window.location.hash.replace("#", "");
+    return sections.some(s => s.id === hash) ? hash : "registration";
+  });
+
+  useEffect(() => {
+    window.location.hash = activeTab;
+  }, [activeTab]);
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace("#", "");
+      if (sections.some(s => s.id === hash)) {
+        setActiveTab(hash);
+      }
+    };
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, []);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const { theme, setTheme } = useTheme();
 
